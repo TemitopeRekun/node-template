@@ -28,6 +28,9 @@ const ENDPOINT_CONFIGS = [
   {
     path: './endpoints/creator-cards/',
   },
+  {
+    path: './endpoints/health/',
+  },
 ];
 
 function logEndpointMetaData(endpointConfigs) {
