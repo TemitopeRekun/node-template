@@ -32,6 +32,7 @@ const parsedSpec = validator.parse(spec);
 
 const SLUG_SUFFIX_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const MIN_SLUG_LENGTH = 5;
+const MAX_SLUG_LENGTH = 50;
 const SUFFIX_LENGTH = 6;
 const ACCESS_CODE_LENGTH = 6;
 
@@ -105,6 +106,14 @@ function urlHasValidScheme(url) {
   return url.startsWith('http://') || url.startsWith('https://');
 }
 
+function stripTrailingHyphens(str) {
+  let end = str.length;
+  while (end > 0 && str[end - 1] === '-') {
+    end -= 1;
+  }
+  return str.slice(0, end);
+}
+
 // Uniqueness spans every card (including soft-deleted ones) to match the
 // unique index on `slug` and avoid duplicate-key writes.
 async function slugIsTaken(slug) {
@@ -123,7 +132,7 @@ async function resolveSlug(data) {
     return data.slug;
   }
 
-  let generated = generateSlugFromTitle(data.title);
+  let generated = generateSlugFromTitle(data.title).slice(0, MAX_SLUG_LENGTH);
   if (!generated) {
     generated = 'card';
   }
@@ -133,10 +142,13 @@ async function resolveSlug(data) {
     return generated;
   }
 
-  let candidate = `${generated}-${randomAlphanumericSuffix()}`;
+  // Keep room for the "-xxxxxx" suffix within the 50-char maximum.
+  const base =
+    stripTrailingHyphens(generated.slice(0, MAX_SLUG_LENGTH - SUFFIX_LENGTH - 1)) || 'card';
+  let candidate = `${base}-${randomAlphanumericSuffix()}`;
   // eslint-disable-next-line no-await-in-loop
   while (await slugIsTaken(candidate)) {
-    candidate = `${generated}-${randomAlphanumericSuffix()}`;
+    candidate = `${base}-${randomAlphanumericSuffix()}`;
   }
   return candidate;
 }
