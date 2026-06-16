@@ -6,6 +6,7 @@ const fs = require('fs');
 const { createServer } = require('@app-core/server');
 const { createConnection } = require('@app-core/mongoose');
 const { createQueue } = require('@app-core/queue');
+const { startKeepAlive } = require('./keep-alive');
 
 const canLogEndpointInformation = process.env.CAN_LOG_ENDPOINT_INFORMATION;
 
@@ -93,3 +94,5 @@ ENDPOINT_CONFIGS.forEach((config) => {
 });
 
 server.startServer();
+
+startKeepAlive();
