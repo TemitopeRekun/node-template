@@ -1,0 +1,27 @@
+name: E2E (manual)
+
+# Manual-only: the smoke test hits a live deployment, so it is not run on every
+# push. Trigger it from the Actions tab against any base URL.
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Base URL to test against
+        required: true
+        default: https://node-template-a2f0.onrender.com
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-audit --no-fund
+      - name: Run E2E smoke test
+        env:
+          E2E_BASE: ${{ inputs.base_url }}
+        run: npm run test:e2e
