@@ -12,6 +12,11 @@ DELETE /creator-cards/:slug
 GET    /                      # health check
 ```
 
+## Verification status
+
+- CI runs `npm run verify` (format check, lint, unit tests, coverage gate).
+- Live E2E smoke test is available via the `E2E (manual)` GitHub Actions workflow.
+
 ## Verify locally
 
 ```bash
