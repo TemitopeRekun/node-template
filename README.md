@@ -6,6 +6,19 @@ rates), built on the R17 backend template.
 > 📐 **Implementation design, rules coverage, and decisions: [SOLUTION.md](./SOLUTION.md)**
 > 📖 **Template architecture reference: [documentation.md](./documentation.md)**
 
+## Live API
+
+**Base URL:** `https://node-template-a2f0.onrender.com`
+
+Endpoints are served at the root of the base URL (no auth, no versioning):
+
+```
+POST   https://node-template-a2f0.onrender.com/creator-cards
+GET    https://node-template-a2f0.onrender.com/creator-cards/:slug
+DELETE https://node-template-a2f0.onrender.com/creator-cards/:slug
+GET    https://node-template-a2f0.onrender.com/            # health check
+```
+
 ## Endpoints
 
 | Method | Path | Description |
