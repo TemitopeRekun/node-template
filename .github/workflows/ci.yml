@@ -21,10 +21,7 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      # Lint the application code. The template's vendored core/ is excluded
-      # because it ships with its own pre-existing lint debt.
-      - name: Lint
-        run: npx eslint app.js endpoints services messages models repository test
-
-      - name: Unit tests
-        run: npm test
+      # Format check + lint (application code only; the vendored core/ ships
+      # with its own pre-existing lint debt) + unit tests with a coverage gate.
+      - name: Verify
+        run: npm run verify
