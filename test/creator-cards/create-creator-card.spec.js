@@ -1,7 +1,15 @@
 process.env.PINO_LOG_LEVEL = process.env.PINO_LOG_LEVEL || 'silent';
 
 const { expect } = require('chai');
+const repo = require('@app/repository/creator-cards/creator-card');
 const createCreatorCard = require('@app/services/creator-cards/create-creator-card');
+
+function duplicateError() {
+  const e = new Error('An existing slug record exists.');
+  e.isApplicationError = true;
+  e.errorCode = 'DUPLICATE_RECORD';
+  return e;
+}
 
 // These cases all fail during validation or the business-rule checks, i.e.
 // before any database access, so they run against the template's mock models
@@ -60,5 +68,57 @@ describe('creator-cards/create-creator-card (error paths)', () => {
       service_rates: { currency: 'USD', rates: [{ name: 'Svc', amount: 1.5 }] },
     };
     expect(await codeFor(payload)).to.equal('VALIDATION_ERROR');
+  });
+});
+
+describe('creator-cards/create-creator-card (happy path & concurrency)', () => {
+  let originalFindOne;
+  let originalCreate;
+
+  beforeEach(() => {
+    originalFindOne = repo.findOne;
+    originalCreate = repo.create;
+  });
+
+  afterEach(() => {
+    repo.findOne = originalFindOne;
+    repo.create = originalCreate;
+  });
+
+  it('creates a card and serializes it (id exposed, access_code included)', async () => {
+    repo.findOne = async () => null; // slug is free
+    repo.create = async (doc) => ({ ...doc });
+
+    const out = await createCreatorCard({ ...VALID, slug: 'happy-path' });
+
+    expect(out.id).to.be.a('string');
+    expect(out).to.not.have.property('_id');
+    expect(out).to.have.property('access_code');
+    expect(out.slug).to.equal('happy-path');
+  });
+
+  it('maps a client-slug duplicate-key write to SL02', async () => {
+    repo.findOne = async () => null; // passes the pre-check
+    repo.create = async () => {
+      throw duplicateError();
+    };
+    expect(await codeFor({ ...VALID, slug: 'raced-slug' })).to.equal('SL02');
+  });
+
+  it('retries an auto-generated slug after a duplicate-key write', async () => {
+    let createCalls = 0;
+    repo.findOne = async () => null;
+    repo.create = async (doc) => {
+      createCalls += 1;
+      if (createCalls === 1) {
+        throw duplicateError();
+      }
+      return { ...doc };
+    };
+
+    const out = await createCreatorCard({ ...VALID, title: 'Auto Retry' });
+
+    expect(createCalls).to.equal(2);
+    expect(out.id).to.be.a('string');
   });
 });
