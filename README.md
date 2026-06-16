@@ -1,6 +1,6 @@
 # Creator Card Microservice
 
-[![CI](https://github.com/TemitopeRekun/node-template/actions/workflows/ci.yml/badge.svg)](https://github.com/TemitopeRekun/node-template/actions/workflows/ci.yml)
+[![CI](https://github.com/TemitopeRekun/creator-card-microservice/actions/workflows/ci.yml/badge.svg)](https://github.com/TemitopeRekun/creator-card-microservice/actions/workflows/ci.yml)
 
 A REST API for publishing shareable creator profile cards (links + service
 rates), built on the R17 backend template.

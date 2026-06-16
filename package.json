@@ -6,7 +6,7 @@
   "type": "commonjs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TemitopeRekun/node-template.git"
+    "url": "https://github.com/TemitopeRekun/creator-card-microservice.git"
   },
   "scripts": {
     "start": "node bootstrap.js",

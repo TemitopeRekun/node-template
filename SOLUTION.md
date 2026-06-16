@@ -199,6 +199,9 @@ result is shorter than 5 characters or already taken, a `-` plus a random
 - **Consecutive whitespace in a title becomes consecutive hyphens**
   (`"A  B"` → `a--b`), following the literal rule "replace whitespace with
   hyphens"; they are not collapsed because the spec does not say to.
+- **`access_code` is stored in plain text.** The contract requires returning it
+  on create/delete and comparing it on retrieval, so it is stored as-is. In a
+  production system it would be hashed and shown only once.
 
 ## No regex
 
