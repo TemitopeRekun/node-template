@@ -11,18 +11,22 @@ validator DSL and error utilities).
 | `POST` | `/creator-cards` | Create a card (validates, auto-generates slug, returns the card) |
 | `GET` | `/creator-cards/:slug` | Public retrieval, honouring draft + private access rules |
 | `DELETE` | `/creator-cards/:slug` | Soft-delete a card and return it in the creation response format |
+| `GET` | `/` | Health check (returns `{ status: 'ok' }`) for uptime probes |
 
-No auth, no URL versioning — all three live at the root of the base URL.
+No auth, no URL versioning — the assessment endpoints live at the root of the base URL.
 
 ## Project layout (follows the template conventions)
 
 ```
 endpoints/creator-cards/      create.js · get.js · delete.js   (HTTP handlers)
+endpoints/health/             health.js                        (GET / health check)
 services/creator-cards/       create-creator-card.js · get-creator-card.js
                               delete-creator-card.js · serialize-card.js
+                              card-rules.js (pure, unit-tested helpers)
 repository/creator-cards/     creator-card.js                  (repository factory)
 models/creator-card.js        Mongoose model (_id = ULID)
 messages/creator-cards.js     all human-readable messages
+test/creator-cards/           card-rules · serialize-card · create-creator-card specs
 ```
 
 Routes are registered by adding `./endpoints/creator-cards/` to
@@ -71,6 +75,12 @@ The bad-JSON 400 response was `{code, error:true, message}`; changed to
 `{status:'error', message, code:'ERR'}` so every error the service emits has an
 identical shape. The original already returned a non-crashing 400 — this is
 purely uniformity.
+
+### 4. `core/express/server.js` — redact `access_code` from request logs *(security)*
+
+Added `access_code` to the request-log `sanitizableFields` list (alongside
+`authorization`/`password`) so a private card's pin is masked in any
+request/error log line.
 
 No other `core/` file was modified.
 
@@ -190,7 +200,16 @@ methods and explicit character-range comparisons.
 
 ## Testing
 
-All 16 assessment test cases plus additional edge cases (malformed JSON,
-non-integer amount, bad URL scheme, long-title slug cap, soft-deleted slug
-reuse, duplicate auto-slug, bad access-code length, string amount) were run
-end-to-end against a live MongoDB Atlas instance — all passing.
+**Unit tests** (`npm test`, mocha) cover the assessment-specific logic against
+the template's mock models, so they need no database:
+
+- `card-rules` — slug generation, slug/access-code/url validation, suffix logic
+- `serialize-card` — `_id`→`id` mapping, `access_code` inclusion/omission, defaults
+- `create-creator-card` — every validation and business-rule error resolves to
+  the correct code (SPCL_VALIDATION / VALIDATION_ERROR / AC01 / AC05)
+
+**End-to-end:** all 16 assessment test cases plus additional edge cases
+(malformed JSON, non-integer amount, bad URL scheme, long-title slug cap,
+soft-deleted slug reuse, duplicate auto-slug, bad access-code length, string
+amount, health check) were run against a live MongoDB Atlas instance — all
+passing.

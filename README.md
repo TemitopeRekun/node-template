@@ -1,8 +1,66 @@
-# Assessment Codebase Guide
+# Creator Card Microservice
 
-This guide will help you understand the codebase architecture and set up your services, endpoints, and middleware correctly. This is NOT a solution to the assessment - it's a reference guide to help you implement your own solution following the codebase conventions.
+A REST API for publishing shareable creator profile cards (links + service
+rates), built on the R17 backend template.
 
-> 📖 **For comprehensive architecture documentation, see [documentation.md](./documentation.md)**
+> 📐 **Implementation design, rules coverage, and decisions: [SOLUTION.md](./SOLUTION.md)**
+> 📖 **Template architecture reference: [documentation.md](./documentation.md)**
+
+## Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/creator-cards` | Create a creator card |
+| `GET` | `/creator-cards/:slug` | Public retrieval (honours draft + private access rules) |
+| `DELETE` | `/creator-cards/:slug` | Delete a card (returns the deleted card) |
+| `GET` | `/` | Health check |
+
+No authentication and no URL versioning — all paths live at the root of the base URL.
+
+## Getting started
+
+**Requirements:** Node.js ≥ 18 and a MongoDB connection string (MongoDB Atlas free tier works).
+
+```bash
+npm install                 # install dependencies
+cp .env.example .env        # then set PORT and MONGODB_URI
+npm start                   # start the server (node bootstrap.js)
+```
+
+Minimum `.env`:
+
+```
+PORT=8811
+MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>/creator_cards?retryWrites=true&w=majority
+```
+
+All other variables are optional — the queue/Redis, email, JWT and secrets
+manager stay inactive unless their variables are set, and none of the endpoints
+depend on them.
+
+## Testing
+
+```bash
+npm test                    # unit tests (mocha) for rules, serializer and validation
+```
+
+The unit suite runs against the template's mock models, so it needs no database.
+End-to-end coverage of all assessment cases was additionally verified against a
+live MongoDB Atlas instance.
+
+## Deployment (Render / Heroku)
+
+- **Build:** `npm install`
+- **Start:** `node bootstrap.js`
+- **Env:** set `MONGODB_URI` only. Do not set `PORT` (the platform injects it)
+  or `NODE_ENV=production` (it would skip the dev dependency used by the
+  `prepare` hook). Allow Atlas network access from anywhere (`0.0.0.0/0`).
+
+---
+
+# Template Codebase Guide
+
+> The reference guide below ships with the template; it documents conventions, not this solution.
 
 ---
 
