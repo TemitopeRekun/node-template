@@ -246,6 +246,11 @@ function Server(serverConfig = {}) {
         responseComponents.body.message = error.isApplicationError
           ? error.message
           : 'Some error occured.';
+        // Surface the application error code (e.g. SL02, NF01) so callers can
+        // distinguish business-rule failures programmatically.
+        if (error.isApplicationError && error.errorCode) {
+          responseComponents.body.code = error.errorCode;
+        }
         responseComponents.body.errors = error.details || undefined;
         responseComponents.body.data = error.context;
 

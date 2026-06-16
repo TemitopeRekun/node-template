@@ -35,6 +35,17 @@ const ERROR_STATUS_CODE_MAPPING = {
   DUPLICATE_RECORD: 409,
   APPLICATION_ERROR: 500,
   RATE_LIMIT_ERROR: 429,
+
+  // Creator Card business-rule error codes (see messages/creator-cards.js).
+  // Unmapped codes already fall back to 400; the 404/403 entries below are the
+  // ones that need an explicit status.
+  SL02: 400,
+  AC01: 400,
+  AC05: 400,
+  NF01: 404,
+  NF02: 404,
+  AC03: 403,
+  AC04: 403,
 };
 
 module.exports = { ERROR_CODE, ERROR_STATUS_CODE_MAPPING };
