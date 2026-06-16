@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+      USE_MOCK_MODEL: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      # Lint the application code. The template's vendored core/ is excluded
+      # because it ships with its own pre-existing lint debt.
+      - name: Lint
+        run: npx eslint app.js endpoints services messages models repository test
+
+      - name: Unit tests
+        run: npm test
