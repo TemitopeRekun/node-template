@@ -3,7 +3,7 @@ const { throwAppError } = require('@app-core/errors');
 const { appLogger } = require('@app-core/logger');
 const CreatorCardRepo = require('@app/repository/creator-cards/creator-card');
 const { CreatorCardMessages } = require('@app/messages');
-const { serializeCard } = require('./create-creator-card');
+const serializeCard = require('./serialize-card');
 
 const spec = `root {
   slug string<trim|minLength:1>
@@ -12,7 +12,7 @@ const spec = `root {
 
 const parsedSpec = validator.parse(spec);
 
-async function deleteCreatorCard(serviceData, options = {}) {
+async function deleteCreatorCard(serviceData) {
   const data = validator.validate(serviceData, parsedSpec);
   let result;
 
@@ -32,9 +32,8 @@ async function deleteCreatorCard(serviceData, options = {}) {
       updateValues: { deleted: deletedAt, updated: deletedAt },
     });
 
-    // Return card in creation response format (with access_code, with deleted timestamp)
     const updatedCard = {
-      ...((card.toObject ? card.toObject() : { ...card })),
+      ...(card.toObject ? card.toObject() : { ...card }),
       deleted: deletedAt,
       updated: deletedAt,
     };
