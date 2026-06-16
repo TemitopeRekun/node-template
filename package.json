@@ -1,23 +1,26 @@
 {
-  "name": "profold-be-api",
+  "name": "creator-card-microservice",
   "version": "1.0.0",
-  "description": "Project Scaffold for R17 Projects",
+  "description": "Creator Card REST API assessment built on the R17 backend template",
   "main": "app.js",
   "type": "commonjs",
   "repository": {
     "type": "git",
-    "url": "profold-be-api-1"
+    "url": "https://github.com/TemitopeRekun/node-template.git"
   },
   "scripts": {
     "start": "node bootstrap.js",
-    "test": "set USE_MOCK_MODEL=1 && mocha --recursive --require dotenv/config",
+    "test": "cross-env USE_MOCK_MODEL=1 mocha --recursive --require dotenv/config",
     "test:e2e": "node scripts/creator-cards.e2e.js",
+    "lint": "eslint app.js endpoints services messages models repository test",
+    "format": "prettier --write app.js endpoints services messages models repository test scripts",
+    "format:check": "prettier --check app.js endpoints services messages models repository test scripts",
     "prepare": "husky",
     "commitlint": "commitlint --edit",
     "sync-envs": "node sync-env-files"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20 <25"
   },
   "keywords": [],
   "author": "Resilience17",
@@ -73,6 +76,7 @@
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
     "chai": "^4.3.7",
+    "cross-env": "^10.1.0",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-node": "^4.1.0",
