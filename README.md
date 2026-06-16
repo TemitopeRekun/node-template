@@ -56,9 +56,14 @@ depend on them.
 ## Testing
 
 ```bash
+npm run verify              # format check + lint + unit tests with coverage gate
 npm test                    # unit tests (mocha) for rules, serializer and validation
+npm run test:coverage       # unit tests + coverage thresholds (service layer)
 npm run test:e2e            # end-to-end smoke test against a running server
 ```
+
+A manual GitHub Actions workflow (`E2E (manual)`) can run the non-destructive
+smoke test against any deployed base URL from the Actions tab.
 
 - **Unit tests** run against the template's mock models, so they need no database.
 - **End-to-end** (`scripts/creator-cards.e2e.js`) exercises all three endpoints

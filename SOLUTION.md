@@ -184,6 +184,11 @@ result is shorter than 5 characters or already taken, a `-` plus a random
 - **Keep-alive** (`keep-alive.js`): on Render free, the app self-pings its own
   public URL (`RENDER_EXTERNAL_URL`) every 10 minutes — under the 15-minute idle
   window — so the instance never sleeps. No-ops locally when no URL is set.
+- **Slug uniqueness under concurrency**: the pre-write check is backed by the
+  unique index. If two requests race, the write that loses is caught (the
+  repository maps Mongo `E11000` to a duplicate-record error) and translated to
+  `SL02` for a client-provided slug, or retried with a fresh suffix for an
+  auto-generated one — so uniqueness holds across all requests.
 
 ## Deliberate interpretations of ambiguous spec points
 
