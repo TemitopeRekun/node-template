@@ -55,11 +55,19 @@ depend on them.
 
 ```bash
 npm test                    # unit tests (mocha) for rules, serializer and validation
+npm run test:e2e            # end-to-end smoke test against a running server
 ```
 
-The unit suite runs against the template's mock models, so it needs no database.
-End-to-end coverage of all assessment cases was additionally verified against a
-live MongoDB Atlas instance.
+- **Unit tests** run against the template's mock models, so they need no database.
+- **End-to-end** (`scripts/creator-cards.e2e.js`) exercises all three endpoints
+  over HTTP. It is non-destructive — every card it creates is namespaced with a
+  unique per-run id and cleaned up afterwards, so it is safe to run against the
+  live deployment:
+
+  ```bash
+  E2E_BASE=https://node-template-a2f0.onrender.com npm run test:e2e
+  # defaults to http://localhost:8811 when E2E_BASE is unset
+  ```
 
 ## Deployment (Render / Heroku)
 

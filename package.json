@@ -11,6 +11,7 @@
   "scripts": {
     "start": "node bootstrap.js",
     "test": "set USE_MOCK_MODEL=1 && mocha --recursive --require dotenv/config",
+    "test:e2e": "node scripts/creator-cards.e2e.js",
     "prepare": "husky",
     "commitlint": "commitlint --edit",
     "sync-envs": "node sync-env-files"

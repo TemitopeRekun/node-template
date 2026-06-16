@@ -211,8 +211,10 @@ the template's mock models, so they need no database:
 - `create-creator-card` — every validation and business-rule error resolves to
   the correct code (SPCL_VALIDATION / VALIDATION_ERROR / AC01 / AC05)
 
-**End-to-end:** all 16 assessment test cases plus additional edge cases
-(malformed JSON, non-integer amount, bad URL scheme, long-title slug cap,
-soft-deleted slug reuse, duplicate auto-slug, bad access-code length, string
-amount, health check) were run against a live MongoDB Atlas instance — all
-passing.
+**End-to-end** (`scripts/creator-cards.e2e.js`, run via `npm run test:e2e`):
+exercises all three endpoints over HTTP, covering every assessment case plus
+edge cases (malformed JSON, non-integer amount, bad URL scheme, duplicate slug,
+draft/private access rules, delete-then-retrieve). It is non-destructive — each
+card is namespaced with a unique per-run id and cleaned up afterwards — so it is
+safe against the live deployment. Verified passing against the live Render +
+Atlas deployment (`E2E_BASE=<base-url> npm run test:e2e`).
