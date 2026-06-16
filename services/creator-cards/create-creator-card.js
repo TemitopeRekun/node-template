@@ -41,6 +41,8 @@ const spec = `root {
 
 const parsedSpec = validator.parse(spec);
 
+const MAX_CREATE_ATTEMPTS = 5;
+
 // Uniqueness spans every card (including soft-deleted ones) to match the
 // unique index on `slug` and avoid duplicate-key writes.
 async function slugIsTaken(slug) {
@@ -116,6 +118,58 @@ function enforceBusinessRules(data, accessType) {
   }
 }
 
+// The repository factory converts a Mongo E11000 into a DUPLICATE_RECORD app
+// error. `slug` is the only unique index, so any such error here is a slug clash.
+function isDuplicateSlugError(error) {
+  return !!error && error.errorCode === ERROR_CODE.DUPLRCRD;
+}
+
+function buildCardDocument(data, slug, accessType) {
+  const now = Date.now();
+  return {
+    _id: ulid(),
+    title: data.title,
+    description: data.description != null ? data.description : null,
+    slug,
+    creator_reference: data.creator_reference,
+    links: Array.isArray(data.links) ? data.links : [],
+    service_rates: data.service_rates != null ? data.service_rates : null,
+    status: data.status,
+    access_type: accessType,
+    access_code: data.access_code != null ? data.access_code : null,
+    created: now,
+    updated: now,
+    deleted: null,
+  };
+}
+
+// Persist with a retry loop so that a slug claimed by a concurrent request
+// between the uniqueness check and the write is still handled correctly: a
+// client-provided slug becomes SL02, an auto-generated one gets a fresh suffix.
+/* eslint-disable no-await-in-loop */
+async function persistCard(data, accessType) {
+  const clientProvidedSlug = !!data.slug;
+
+  for (let attempt = 1; attempt <= MAX_CREATE_ATTEMPTS; attempt += 1) {
+    const slug = await resolveSlug(data);
+    try {
+      return await CreatorCardRepo.create(buildCardDocument(data, slug, accessType));
+    } catch (error) {
+      if (!isDuplicateSlugError(error)) {
+        throw error;
+      }
+      if (clientProvidedSlug) {
+        throwAppError(CreatorCardMessages.SLUG_TAKEN, 'SL02');
+      }
+      // Auto-generated slug raced; loop and resolveSlug will pick a new suffix.
+    }
+  }
+
+  throwAppError(CreatorCardMessages.SLUG_TAKEN, 'SL02');
+  return null;
+}
+/* eslint-enable no-await-in-loop */
+
 async function createCreatorCard(serviceData) {
   const data = validator.validate(serviceData, parsedSpec);
   let result;
@@ -125,25 +179,7 @@ async function createCreatorCard(serviceData) {
 
     enforceBusinessRules(data, accessType);
 
-    const slug = await resolveSlug(data);
-    const now = Date.now();
-
-    const cardDoc = await CreatorCardRepo.create({
-      _id: ulid(),
-      title: data.title,
-      description: data.description != null ? data.description : null,
-      slug,
-      creator_reference: data.creator_reference,
-      links: Array.isArray(data.links) ? data.links : [],
-      service_rates: data.service_rates != null ? data.service_rates : null,
-      status: data.status,
-      access_type: accessType,
-      access_code: data.access_code != null ? data.access_code : null,
-      created: now,
-      updated: now,
-      deleted: null,
-    });
-
+    const cardDoc = await persistCard(data, accessType);
     result = serializeCard(cardDoc, true);
   } catch (error) {
     appLogger.error({ error: error.message }, 'create-creator-card-error');
