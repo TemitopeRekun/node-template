@@ -8,7 +8,10 @@ module.exports = createHandler({
   method: 'delete',
   middlewares: [],
   async onResponseEnd(rc, rs) {
-    appLogger.info({ requestContext: rc, response: rs }, 'delete-creator-card-request-completed');
+    appLogger.info(
+      { method: rc.properties.method, path: rc.properties.handlerPath, status: rs.statusCode },
+      'delete-creator-card-completed'
+    );
   },
   async handler(rc, helpers) {
     const body = rc.body || {};

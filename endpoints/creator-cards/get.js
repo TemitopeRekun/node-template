@@ -8,7 +8,10 @@ module.exports = createHandler({
   method: 'get',
   middlewares: [],
   async onResponseEnd(rc, rs) {
-    appLogger.info({ requestContext: rc, response: rs }, 'get-creator-card-request-completed');
+    appLogger.info(
+      { method: rc.properties.method, path: rc.properties.handlerPath, status: rs.statusCode },
+      'get-creator-card-completed'
+    );
   },
   async handler(rc, helpers) {
     const response = await getCreatorCard({

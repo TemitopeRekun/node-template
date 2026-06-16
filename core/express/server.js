@@ -33,7 +33,7 @@ function Server(serverConfig = {}) {
       // Todo: replace with a more optimal JSON stringifier
       objectClone = JSON.parse(JSON.stringify(inputObject || {}));
     } catch (e) {}
-    const sanitizableFields = ['authorization', 'authorisation', 'password'];
+    const sanitizableFields = ['authorization', 'authorisation', 'password', 'access_code'];
     sanitizableFields.forEach((s) => {
       if (objectClone[s]) {
         objectClone[s] = '*****masked******';
