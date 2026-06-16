@@ -1,0 +1,9 @@
+{
+  "include": ["services/creator-cards/**"],
+  "check-coverage": true,
+  "lines": 90,
+  "branches": 80,
+  "functions": 90,
+  "statements": 90,
+  "reporter": ["text-summary", "text"]
+}
