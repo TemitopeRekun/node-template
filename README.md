@@ -56,6 +56,10 @@ live MongoDB Atlas instance.
   or `NODE_ENV=production` (it would skip the dev dependency used by the
   `prepare` hook). Allow Atlas network access from anywhere (`0.0.0.0/0`).
 
+Render free instances sleep after ~15 minutes idle. The app self-pings its own
+public URL (`RENDER_EXTERNAL_URL`, injected by Render) every 10 minutes to stay
+awake — no external uptime service required. See [`keep-alive.js`](./keep-alive.js).
+
 ---
 
 # Template Codebase Guide

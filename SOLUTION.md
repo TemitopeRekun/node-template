@@ -181,6 +181,9 @@ result is shorter than 5 characters or already taken, a `-` plus a random
   public).
 - **Malformed JSON** → 400 in the standard error shape, never a crash.
 - **Unexpected server errors** → 500 with a safe generic message, never a crash.
+- **Keep-alive** (`keep-alive.js`): on Render free, the app self-pings its own
+  public URL (`RENDER_EXTERNAL_URL`) every 10 minutes — under the 15-minute idle
+  window — so the instance never sleeps. No-ops locally when no URL is set.
 
 ## Deliberate interpretations of ambiguous spec points
 
