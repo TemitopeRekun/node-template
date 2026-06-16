@@ -69,9 +69,9 @@ function Server(serverConfig = {}) {
   app.use(express.json({ limit: JSONLimit }), (err, req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
       res.status(400).json({
-        code: 'ERR',
-        error: true,
+        status: 'error',
         message: 'Error encountered in parsing request payload. Please check payload and try again',
+        code: 'ERR',
       });
     } else {
       next();
